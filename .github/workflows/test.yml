@@ -1,0 +1,36 @@
+name: chisel test
+
+on:
+  pull_request:
+    paths:
+      - '**.scala'
+      - '**.sbt'
+      - Makefile
+  push:
+    paths:
+      - '**.scala'
+      - '**.sbt'
+      - Makefile
+      - .github/workflows/test.yml
+
+jobs:
+  test:
+    name: sbt testOnly on ubuntu
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        scala: [2.13.8]
+        jvm: [adopt@1.8, adopt@1.11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install Z3 package
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y z3
+      - name: Setup Scala
+        uses: olafurpg/setup-scala@v10
+        with:
+          java-version: ${{ matrix.jvm }}
+      - name: Test
+        run: sbt ++${{ matrix.scala }} "testOnly -- -l RequiresVcs -l RequiresVerilator -DFORMAL=1"
