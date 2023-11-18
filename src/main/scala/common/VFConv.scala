@@ -88,7 +88,6 @@ class ConvV2F(bw: Int = 4, nblocks: Int = 32) extends Module {
   }
 
   // fully-populated output
-  // XXX: implement partially populated data. mask with
   when(bankReg === 0.U) {
     io.out.bits := buf(nblocks * bw - 1, 0)
   }.otherwise {

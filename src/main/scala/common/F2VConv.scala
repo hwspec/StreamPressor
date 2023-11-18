@@ -7,7 +7,6 @@ import chisel3._
 import chisel3.stage.ChiselStage
 import chisel3.util._
 
-
 /**
  * This module generate a circuit that receives a fixed size buffer, extract variable-length data and outputs it.
  *

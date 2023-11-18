@@ -13,9 +13,10 @@ import chisel3.util._
  * @param bw the bitwidth of each block
  * @param nblocks the number of blocks
  *
- *
  * Current limitations (will be fixed):
  * - if the consumer does not raise ready before switch the bank, the output will be corrupted
+ *
+ * XXX: add the details of V2F algorithm here
  *
  * Note about variable naming
  * 'p_' prefix  : class parameter
@@ -53,19 +54,22 @@ class V2FConv(p_inbw: Int = 36, p_outbw: Int = 128, p_packetbw: Int = 4, p_debug
 
   when(io.in.fire) {
     // === input sint into a vector of packets,  encoding specific
+    // XXX generalize the header handling and possibly parameterize it (sign and length)
     val inabsval = Mux(io.in.bits < 0.S, -1.S * io.in.bits, io.in.bits)
     val indatauint = inabsval.asUInt // unsigned int part
     val insign = Mux(io.in.bits < 0.S, true.B, false.B)
+
     // count the number of packets that will be sent.
     val clzbw = 1 << log2Ceil(p_inbw) // the smallest power of two number that is larger than databw. e.g., 36 => 64
-    val nbits_clzbw = log2Ceil(clzbw) + 1
+    val nbits_clzbw = log2Ceil(clzbw) + 1  // +1 ???
     val clzmod = Module(new ClzParam(clzbw))
     clzmod.io.in := indatauint
     val ndatabits = clzbw.U(nbits_clzbw.W) - clzmod.io.out // the number of residual bits
-    val nexactpayloads = (ndatabits + (p_packetbw - 1).U) / p_packetbw.U
+    val nexactpayloads = (ndatabits + (p_packetbw - 1).U) / p_packetbw.U  // XXX: get rid of division
+
     // ==== construct the 4b header
     val headercodedlen = Mux(nexactpayloads < 7.U, nexactpayloads, 7.U) // use only 3 bits. 111 means all payloads (e.g., 9)
-    val newheader = Mux(insign, headercodedlen, 8.U | headercodedlen)
+    val newheader = Mux(insign, headercodedlen, 8.U | headercodedlen) //
 
     val innheaderpayloads = Mux(nexactpayloads < 7.U, nexactpayloads, c_nmaxpackets.U) + 1.U
 
@@ -101,7 +105,9 @@ class V2FConv(p_inbw: Int = 36, p_outbw: Int = 128, p_packetbw: Int = 4, p_debug
       outBufReadyReg := true.B
     }
   }
-  printf("v2f: outBufReadyReg=%d io.out.ready=%d\n", outBufReadyReg, io.out.ready)
+  if (p_debuglevel > 0) {
+    printf("v2f: outBufReadyReg=%d io.out.ready=%d\n", outBufReadyReg, io.out.ready)
+  }
   // Note: if the consumer does not raise ready before switch the bank, the output will be corrupted
   io.out.valid := outBufReadyReg
   when(io.out.valid && io.out.ready) {
@@ -109,7 +115,7 @@ class V2FConv(p_inbw: Int = 36, p_outbw: Int = 128, p_packetbw: Int = 4, p_debug
     outBufReadyReg := false.B
   }
 
-  val revbuf = Cat(bufReg) // reversed for output
+  val revbuf = Cat(bufReg)
   when(bankReg === 0.U) {
     io.out.bits := revbuf(p_outbw - 1, 0)
   }.otherwise {

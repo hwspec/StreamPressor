@@ -13,9 +13,33 @@ class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
   behavior.of("BitShuffle")
 
   val c_nelems: Int = 16
-  val c_elemsize: Int = 9
+  val c_elemsize: Int = 8
 
-  "BitShuffle basic test" should "pass" in {
+  val pat0 = List.fill(c_nelems)(0)
+
+  def genref(p: List[Int]) : List[Int] = {
+    (0 until c_elemsize).map { sh =>
+      p.zipWithIndex.map {case (v, i) =>
+        ((v >> sh) & 1) << i}.reduce(_ | _)
+    }.toList
+  }
+
+  "foo" should "pass" in {
+    println(genref(pat0))
+  }
+
+  "Zero test" should "pass" in {
+    test(new BitShuffle(c_nelems, c_elemsize)) {
+      c => {
+        val hpat = pat0.map(_.U)
+        val ref = genref(pat0)
+        for (i<-0 until c_nelems) c.io.in(i).poke(hpat(i))
+        for (i<-0 until c_elemsize) c.io.out(i).expect(ref(i))
+      }
+    }
+  }
+
+  "Random test" should "pass" in {
     test(new BitShuffle(c_nelems, c_elemsize)) {
 
       c => {
@@ -44,10 +68,11 @@ class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
 
         for (t <- 0 until ntests) {
           val data = List.tabulate(n)(i => pickval(i))
-          val shuffled =
-            List.tabulate(b) { bpos =>
-              List.tabulate(n) { idx => bittest(data(idx), bpos) << idx } reduce (_ | _)
-            }
+          val shuffled = genref(data)
+//            List.tabulate(b) { bpos =>
+//              List.tabulate(n) { idx => bittest(data(idx), bpos) << idx } reduce (_ | _)
+//            }
+
 
           println("REF:")
           shuffled foreach { v => print(f"$v%04x ") }
