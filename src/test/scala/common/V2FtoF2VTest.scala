@@ -15,7 +15,7 @@ import chisel3.util._
  * @param p_packetbw the bitwdith of each packet
  * @param p_debuglevel debug level (0: no message)
  */
-class V2FtoF2V(p_encbusbw: Int = 36, p_fixbusbw: Int = 128, p_packetbw: Int = 4, p_debuglevel:Int = 0) extends Module {
+class V2FtoF2VTest(p_encbusbw: Int = 36, p_fixbusbw: Int = 128, p_packetbw: Int = 4, p_debuglevel:Int = 0) extends Module {
 
   val io = IO(new Bundle {
     val inflush = Input(Bool()) // when it becomes true, the current buf is dumped
@@ -35,6 +35,6 @@ class V2FtoF2V(p_encbusbw: Int = 36, p_fixbusbw: Int = 128, p_packetbw: Int = 4,
 
 object V2FtoF2VDriver {
   def main(args: Array[String]): Unit = {
-    (new ChiselStage).emitVerilog(new V2FtoF2V())
+    (new ChiselStage).emitVerilog(new V2FtoF2VTest())
   }
 }

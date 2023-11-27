@@ -6,16 +6,11 @@ package common
 import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
-
 import Misc._
 import ConvTestPats._
 
-class VFConvSpec extends AnyFlatSpec with ChiselScalatestTester {
-  behavior of "Variable-fix Converters"
-
-  // =======================
-  // Verify V2FConv
-  // =======================
+class V2FConvSpec extends AnyFlatSpec with ChiselScalatestTester {
+  behavior of "Variable-Fix Converters"
 
   def checkInitConditionV2FConv(c: V2FConv): Unit = {
     c.io.in.initSource().setSourceClock(c.clock)
@@ -29,13 +24,13 @@ class VFConvSpec extends AnyFlatSpec with ChiselScalatestTester {
       c => {
         checkInitConditionV2FConv(c)
         fork {
-          for(i <- 0 until 16) {
+          for (i <- 0 until 16) {
             c.io.in.enqueue(0x123456789L.S)
           }
         }.fork {
           var clk = 0
           var cnt = 1
-          for (i<-0 until 4) {
+          for (i <- 0 until 4) {
             while (!c.io.out.valid.peekBoolean()) {
               clk += 1
               c.clock.step()
@@ -51,87 +46,15 @@ class VFConvSpec extends AnyFlatSpec with ChiselScalatestTester {
       }
     }
   }
-
-  // ==============================================================
-  // test for F2VConv
-  // XXX: create a separate spec (F2VConvSpec) later.
-  //      test pattern generators needs to be moved to a separate
-  //      class that can be shared by both V2FConv and F2VConv.
-  // ==============================================================
-  def enqF2V(c: F2VConv, b: BigInt): Unit = {
-    var clk = 0
-    while (!c.io.in.ready.peekBoolean()) {
-      clk += 1
-      c.clock.step()
-    }
-    println(f"Waited ${clk} clock(s) for in.ready")
-    println(f"input: ${biginthexstr(b, fdbusbw)}")
-    c.io.in.bits.poke(b)
-    c.io.in.valid.poke(true.B)
-    c.clock.step(1)
-    c.io.in.valid.poke(false.B)
-    c.clock.step(1)
-  }
-
-  "F2VConv multiple patterns" should "pass" in {
-    def checkInitCondition(c: F2VConv): Unit = {
-      c.io.in.initSource().setSourceClock(c.clock)
-      c.io.out.initSink().setSinkClock(c.clock)
-      c.io.in.ready.expect(true.B) // check the initial condition
-      c.io.out.valid.expect(false.B)
-    }
-
-    test(new F2VConv(fdbusbw, vencbusbw, packetbw, debuglevel = 0)) { c =>
-      checkInitCondition(c)
-
-      def enqdeqF2V(tp: List[Int]) : Unit = {
-        val fixedbufs = genfixedfrompat(tp)
-        fork {
-          for(b <- fixedbufs) {
-            enqF2V(c, b)
-          }
-        }.fork {
-          var clk = 0
-          var cnt = 1
-          c.io.out.ready.poke(true.B)
-          for(t <- tp) {
-            while (!c.io.out.valid.peekBoolean()) {
-              clk += 1
-              c.clock.step()
-            }
-            val outbits = c.io.out.bits.peekInt()
-            val ref = genpayloadval(t)
-            assert(outbits == ref, f"out:${outbits}%09x should be ref:${ref}%09x")
-
-            //println(f"clk${clk}/cnt${cnt}  ${outbits}%09x ref=${ref}%x")
-            cnt += 1
-            c.clock.step()
-            clk += 1
-          }
-          // read the rest
-
-          val cntreststart = cnt
-          while(c.io.out.valid.peekBoolean()) { // technically wrong
-            val outbits =  c.io.out.bits.peekInt()
-            //println(f"clk${clk}/cnt${cnt}   ${outbits}%09x rest")
-            //assert(outbits == 0)
-            c.clock.step()
-            cnt += 1
-            clk += 1
-          }
-          println(f"Found ${cnt-cntreststart} pads")
-        }.join()
-      }
-      for (tp <- testpatterns)  enqdeqF2V(tp)
-    }
-  }
+}
 
 
 
 
-  // ==============================================================
-  // The codes below will be removed
-  // ==============================================================
+// ==============================================================
+// The code below will be removed
+// ==============================================================
+class UnusedSpec extends AnyFlatSpec with ChiselScalatestTester {
 
   // XXX: replace gendummycontents with genpayloadspat. update all related codes
   def gendummycontents(len: Int): List[Int] = List.tabulate(len - 1)(i => i + 1)

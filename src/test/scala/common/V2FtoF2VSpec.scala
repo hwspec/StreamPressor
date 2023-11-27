@@ -11,7 +11,14 @@ import scala.collection.mutable.ListBuffer
 
 import Misc._
 
-class V2FtoF2VSpecextends extends AnyFlatSpec with ChiselScalatestTester {
+/**
+ * Inject data into V2F that is connected to F2V, which should output the data injected into V2F.
+ *
+ * Todo:
+ * - add expect
+ * - add different test patterns
+ */
+class V2FtoF2VSpec extends AnyFlatSpec with ChiselScalatestTester {
   behavior of "Loopback test"
 
   val encbusbw: Int = 36
@@ -19,7 +26,7 @@ class V2FtoF2VSpecextends extends AnyFlatSpec with ChiselScalatestTester {
   val packetbw: Int = 4
   val debuglevel:Int = 0
 
-  def checkInitConditionV2FConv(c: V2FtoF2V): Unit = {
+  def checkInitConditionV2FConv(c: V2FtoF2VTest): Unit = {
     c.io.in.initSource().setSourceClock(c.clock)
     c.io.out.initSink().setSinkClock(c.clock)
     c.io.in.ready.expect(true.B) // check the initial condition
@@ -27,7 +34,7 @@ class V2FtoF2VSpecextends extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   "Loopback test" should "pass" in {
-    test(new V2FtoF2V(encbusbw, fixbusbw, packetbw, debuglevel)) {
+    test(new V2FtoF2VTest(encbusbw, fixbusbw, packetbw, debuglevel)) {
       c => {
         checkInitConditionV2FConv(c)
 
