@@ -1,5 +1,7 @@
 package common
 
+import common.Misc.biginthexstr
+
 import scala.collection.mutable.ListBuffer
 import scala.util.Random
 import org.scalatest.flatspec.AnyFlatSpec
@@ -11,10 +13,15 @@ import org.scalatest.flatspec.AnyFlatSpec
 object ConvTestPats {
   val rnd = new Random()
 
-  // header specific definition: 4-bit header (sign + 3-bit length)
-  def lutLen(n: Int): Int = if (n == 7) 9 else n // 4b header coding
-
+  // header specific definition: 4-bit header (sign + 3-bit length lookup)
+  // length lookup: 0-6 is literally the length of payloads. 7 is the maximum payload length
+  def lutLen(n: Int): Int = if (n == 7) 9 else n // 4b header coding. XXX: '9' should be parameterized
   def posHeader(v: Int): Int = v | 8 // MSB is negated sign bit (8 means the payload is positive)
+  // MSB of each packet is always low to avoid treated as negative
+  def genpayloadspat(n: Int): List[Int] = List.tabulate(n) { i => (i % ((1 << (packetbw - 1)) - 1)) + 1 }
+  def genHeaderPayloads(l: Int): List[Int] = {
+    posHeader(l) :: genpayloadspat(lutLen(l))
+  }
 
   // below are parameters for spec
   val packetbw = 4 // packet bitwidth, hold a header or payload
@@ -38,10 +45,7 @@ object ConvTestPats {
 
   val testpatterns = List(testpat_l0, testpat_l1, testpat_l2, testpat_l3, testpat_seq, testpat_rnd)
 
-  def calcnpacketsforpat(tp: List[Int]): Int = tp.map { v => lutLen(v) + 1 }.reduce(_ + _)
-
-  // MSB of each packet is always low to avoid treated as negative
-  def genpayloadspat(n: Int): List[Int] = List.tabulate(n) { i => (i % ((1 << (packetbw - 1)) - 1)) + 1 }
+  def calcnpacketspat(tp: List[Int]): Int = tp.map { v => lutLen(v) + 1 }.reduce(_ + _)
 
   def genpayloadval(n: Int): BigInt = {
     var plv = BigInt(0)
@@ -57,13 +61,16 @@ object ConvTestPats {
     var pos: Int = 0
     var buf: BigInt = BigInt(0)
 
-    pat.foreach { v =>
+    pat.foreach { l => // l is an index for the payload length lookup
       // fill even overflow
-      val header = posHeader(v)
-      buf = buf | (BigInt(header) << (pos * packetbw))
-      val len = lutLen(v)
-      for ((v, i) <- genpayloadspat(len).zipWithIndex) {
-        buf = buf | (BigInt(v) << ((pos + i + 1) * packetbw)) // payload. note or
+//      val header = posHeader(l)
+//      buf = buf | (BigInt(header) << (pos * packetbw))
+      val len = lutLen(l) // len is the actual payload size
+//      for ((v, i) <- genpayloadspat(len).zipWithIndex) {
+//        buf = buf | (BigInt(v) << ((pos + i + 1) * packetbw)) // payload. note or
+//      }
+      for ((v, i) <- genHeaderPayloads(l).zipWithIndex) {
+        buf = buf | (BigInt(v) << ((pos + i) * packetbw))
       }
 
       pos = pos + len + 1 // the next header position
@@ -80,7 +87,6 @@ object ConvTestPats {
     }
     outbufs.toList
   }
-
 }
 
 class LocalTest extends AnyFlatSpec {
@@ -90,9 +96,10 @@ class LocalTest extends AnyFlatSpec {
     def testrepreatpat(tp: List[Int]): Unit = {
       val res: List[BigInt] = genfixedfrompat(tp)
       val n = fdbusbw / packetbw
-      val m = calcnpacketsforpat(tp)
-      assert(res.length == (m + n - 1) / n) // check the number of the outputs
-      // for (elem <- res)   println(f"out${m}: ${biginthexstr(elem, fdbusbw).reverse}")
+      val m = calcnpacketspat(tp)
+      val expectedlen = (m + n - 1) / n // round up
+      assert(res.length == expectedlen) // check the number of the outputs
+      //for (elem <- res)   println(f"out${m}%03d: ${biginthexstr(elem, fdbusbw).reverse}")
     }
     for (tp <- testpatterns) testrepreatpat(tp)
   }

@@ -23,28 +23,35 @@ class V2FConvSpec extends AnyFlatSpec with ChiselScalatestTester {
     test(new V2FConv(vencbusbw, fdbusbw, packetbw, p_debuglevel = 1)) {
       c => {
         checkInitConditionV2FConv(c)
-        fork {
-          for (i <- 0 until 16) {
-            c.io.in.enqueue(0x123456789L.S)
-          }
-        }.fork {
-          var clk = 0
-          var cnt = 1
-          for (i <- 0 until 4) {
-            while (!c.io.out.valid.peekBoolean()) {
-              clk += 1
-              c.clock.step()
+
+        def testwithpat(tp: List[Int]): Unit = {
+          val expectedOutput = genfixedfrompat(tp)
+
+          fork {
+            for (i <- 0 until 16) {
+              c.io.in.enqueue(0x123456789L.S)
             }
-            c.io.out.ready.poke(true.B)
-            val outbits = c.io.out.bits.peekInt()
-            println(f"clk${clk}/cnt${cnt}  ${outbits}%32x")
-            cnt += 1
-            c.clock.step()
-            clk += 1
-          }
-        }.join()
+          }.fork {
+            var clk = 0
+            var cnt = 1
+            for (i <- 0 until 4) {
+              while (!c.io.out.valid.peekBoolean()) {
+                clk += 1
+                c.clock.step()
+              }
+              c.io.out.ready.poke(true.B)
+              val outbits = c.io.out.bits.peekInt()
+              println(f"clk${clk}/cnt${cnt}  ${outbits}%32x")
+              cnt += 1
+              c.clock.step()
+              clk += 1
+            }
+          }.join()
+        }
       }
     }
+
+
   }
 }
 
