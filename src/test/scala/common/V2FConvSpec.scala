@@ -24,8 +24,8 @@ class V2FConvSpec extends AnyFlatSpec with ChiselScalatestTester {
       c => {
         checkInitConditionV2FConv(c)
 
-        def testwithpat(tp: List[Int]): Unit = {
-          val expectedOutput = genfixedfrompat(tp)
+        def testpat(tp: List[Int]): Unit = {
+          val expectedOutput = genoutputfromtestpat(tp)
 
           fork {
             for (i <- 0 until 16) {
@@ -48,10 +48,9 @@ class V2FConvSpec extends AnyFlatSpec with ChiselScalatestTester {
             }
           }.join()
         }
+        testpat(testpat_l0)
       }
     }
-
-
   }
 }
 

@@ -18,7 +18,7 @@ class InputDataLen(bw: Int, nblocks: Int) extends Bundle {
 }
 
 /**
- * Variable to Fixed size packer converter
+ * Variable to Fixed size packer converter (ConvV2F is obsolete)
  *
  * @param bw the bitwidth of each block
  * @param nblocks the number of blocks

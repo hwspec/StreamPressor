@@ -45,7 +45,7 @@ class F2VConvSpec extends AnyFlatSpec with ChiselScalatestTester {
       checkInitCondition(c)
 
       def enqdeqF2V(tp: List[Int]): Unit = {
-        val fixedbufs = genfixedfrompat(tp)
+        val fixedbufs = genoutputfromtestpat(tp)
         fork {
           for (b <- fixedbufs) {
             enqF2V(c, b)

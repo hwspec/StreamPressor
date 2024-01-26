@@ -33,15 +33,15 @@ object ConvTestPats {
   val nblocks = (1 << packetbw) // the maximum number of blocks
   val out_nbits = packetbw * nblocks // the size of the output bus
 
-  val ntestpatlen = npacketsfdbus * 1 + 3
+  val ntestpats = npacketsfdbus * 1 + 3
   // test patterns, a list of headers that include only 'length' of each payload
   // length=0 means literal 0
-  val testpat_l0 = List.fill(ntestpatlen)(0) // all elements are length 0
-  val testpat_l1 = List.fill(ntestpatlen)(1) // all elements are length 1
-  val testpat_l2 = List.fill(ntestpatlen)(2)
-  val testpat_l3 = List.fill(ntestpatlen)(3)
-  val testpat_seq = List.tabulate(ntestpatlen)(i => i % (1 << (packetbw - 1))) // len code: 0 to 7
-  val testpat_rnd = List.tabulate(ntestpatlen)(_ => rnd.nextInt(1 << (packetbw - 1))) //
+  val testpat_l0 = List.fill(ntestpats)(0) // all elements are length 0
+  val testpat_l1 = List.fill(ntestpats)(1) // all elements are length 1
+  val testpat_l2 = List.fill(ntestpats)(2)
+  val testpat_l3 = List.fill(ntestpats)(3)
+  val testpat_seq = List.tabulate(ntestpats)(i => i % (1 << (packetbw - 1))) // len code: 0 to 7
+  val testpat_rnd = List.tabulate(ntestpats)(_ => rnd.nextInt(1 << (packetbw - 1))) //
 
   val testpatterns = List(testpat_l0, testpat_l1, testpat_l2, testpat_l3, testpat_seq, testpat_rnd)
 
@@ -56,7 +56,7 @@ object ConvTestPats {
     plv
   }
 
-  def genfixedfrompat(pat: List[Int]): List[BigInt] = {
+  def genoutputfromtestpat(pat: List[Int]): List[BigInt] = {
     val outbufs = ListBuffer[BigInt]()
     var pos: Int = 0
     var buf: BigInt = BigInt(0)
@@ -92,14 +92,14 @@ object ConvTestPats {
 class LocalTest extends AnyFlatSpec {
   import ConvTestPats._
   behavior of "ConvTestPats"
-  "Test genfixedfrompat" should "pass" in {
+  "Test genoutputfromtestpat" should "pass" in {
     def testrepreatpat(tp: List[Int]): Unit = {
-      val res: List[BigInt] = genfixedfrompat(tp)
+      val res: List[BigInt] = genoutputfromtestpat(tp)
       val n = fdbusbw / packetbw
       val m = calcnpacketspat(tp)
       val expectedlen = (m + n - 1) / n // round up
       assert(res.length == expectedlen) // check the number of the outputs
-      //for (elem <- res)   println(f"out${m}%03d: ${biginthexstr(elem, fdbusbw).reverse}")
+      for (elem <- res)   println(f"out${m}%03d: ${biginthexstr(elem, fdbusbw).reverse}")
     }
     for (tp <- testpatterns) testrepreatpat(tp)
   }
