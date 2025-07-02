@@ -51,7 +51,7 @@ The setup script will:
 - Build the project and run initial tests
 - Configure the environment automatically
 
-**Note**: The script assumes you're in the project root directory. If you encounter any issues, you can still follow the manual setup instructions below.
+**Note**: The script assumes you're in the project root directory. If you encounter any issues, you can still setup manually.
 
 ### 3. Run Tests
 
