@@ -16,7 +16,7 @@ on:
 jobs:
   test:
     name: sbt testOnly on ubuntu
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       matrix:
         scala: [2.13.8]
