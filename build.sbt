@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-math3" % "3.6.1",
       "edu.berkeley.cs" %% "chisel3" % chiselVersion,
-      "edu.berkeley.cs" %% "chiseltest" % "0.5.4" % "test"
+      "edu.berkeley.cs" %% "chiseltest" % "0.5.4" % "test",
       "me.shadaj" %% "scalapy-core" % "0.5.2"
       //"org.chipsalliance" %% "chisel" % chiselVersion,
       //"edu.berkeley.cs" %% "chiseltest" % chiselVersion % "test"
