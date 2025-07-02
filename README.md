@@ -25,20 +25,6 @@ StreamPressor is a **stream compressor hardware generator** written in the Chise
 - **Python 3** with **numpy** (for .npy file support)
 - **Linux environment** is recommended 
 
-### Installing Dependencies
-
-```bash
-# Ubuntu/Debian
-sudo apt-get update
-sudo apt-get install -y z3 python3 python3-dev python3-pip verilator
-
-# Install Python dependencies
-pip3 install numpy
-
-# Fedora/RHEL
-sudo dnf install z3 python3 python3-devel python3-pip verilator
-pip3 install numpy
-```
 
 ## Quick Start
 
@@ -49,7 +35,25 @@ git clone https://github.com/kazutomo/StreamPressor.git
 cd StreamPressor
 ```
 
-### 2. Run Tests
+### 2. Automated Setup (Recommended for WSL)
+
+For WSL users, we provide an automated setup script that handles all dependencies and configuration:
+
+```bash
+# Make/Run the setup script executable
+sh setup_streampressor.sh
+
+```
+
+The setup script will:
+- Install Java 11, sbt, Verilator, Z3, and Python dependencies
+- Fix Python library linking issues common in WSL
+- Build the project and run initial tests
+- Configure the environment automatically
+
+**Note**: The script assumes you're in the project root directory. If you encounter any issues, you can still follow the manual setup instructions below.
+
+### 3. Run Tests
 
 ```bash
 # Run all tests
@@ -62,7 +66,7 @@ sbt "testOnly -- -DFORMAL=1"
 sbt "testOnly common.XRayCompressionPipelineSpec"
 ```
 
-### 3. Generate Verilog
+### 4. Generate Verilog
 
 ```bash
 # Generate Verilog for LPComp module
@@ -181,6 +185,7 @@ StreamPressor/
 ├── build.sbt                         # SBT build configuration
 ├── LICENSE.txt                       # Argonne National Lab license
 ├── Makefile                          # Build shortcuts and targets
+├── setup_streampressor.sh            # Automated setup script for WSL
 └── README.md                         # This documentation file
 ```
 
