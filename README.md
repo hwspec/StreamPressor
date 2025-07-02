@@ -1,6 +1,5 @@
 # StreamPressor (last updated: 07/02/2025)
 
-[![Build Status](https://github.com/kazutomo/StreamPressor/workflows/CI/badge.svg)](https://github.com/kazutomo/StreamPressor/actions)
 [![License](https://img.shields.io/badge/License-Argonne%20National%20Lab-blue.svg)](LICENSE.txt)
 [![Scala](https://img.shields.io/badge/Scala-2.13.10-red.svg)](https://www.scala-lang.org/)
 [![Chisel](https://img.shields.io/badge/Chisel-3.5.6-orange.svg)](https://www.chisel-lang.org/)
