@@ -37,7 +37,7 @@ cd StreamPressor
 
 ### 2. Automated Setup (For Chameleoncloud Setup)
 
-For WSL users, we provide an automated setup script that handles all dependencies and configuration:
+For cc users, we provide an automated setup script that handles all dependencies and configuration:
 
 ```bash
 # Make/Run the setup script executable
