@@ -6,7 +6,7 @@
 
 StreamPressor is a **stream compressor hardware generator** written in the Chisel hardware construction language for evaluating various designs of streaming hardware compressors. The framework combines predefined hardware compressor primitives with user-defined primitives to generate Verilog code for simulation and integration with other hardware designs.
 
-## 🚀 Features
+## Features
 
 - **Hardware Compression Pipeline**: Complete X-ray data compression pipeline from .npy files to compressed output
 - **Bit Plane Compression**: Advanced bit plane analysis and compression algorithms
@@ -17,7 +17,7 @@ StreamPressor is a **stream compressor hardware generator** written in the Chise
 - **Bit Shuffling**: Optimized bit shuffling algorithms for improved compression ratios
 - **Multi-format Support**: Support for both 32-bit and 64-bit floating-point data
 
-## 📋 Prerequisites
+## Prerequisites
 
 - **Java SDK** (8 or 11 recommended)
 - **sbt** (see [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html) for installation)
@@ -40,7 +40,7 @@ sudo dnf install z3 python3 python3-devel python3-pip verilator
 pip3 install numpy
 ```
 
-## 🏃‍♂️ Quick Start
+## Quick Start
 
 ### 1. Clone the Repository
 
@@ -72,7 +72,7 @@ sbt 'runMain lpe.LPCompGen'
 sbt run
 ```
 
-## 🛠️ Build and Development
+## Build and Development
 
 ### Basic Commands
 
@@ -120,7 +120,7 @@ sbt "testOnly -- -DFORMAL=1"
 sbt "testOnly common.LagrangePredFormalSpec -- -DFORMAL=1"
 ```
 
-## 📊 Project Structure
+## Project Structure
 
 ```
 StreamPressor/
@@ -184,7 +184,7 @@ StreamPressor/
 └── README.md                         # This documentation file
 ```
 
-## 🔬 Key Components
+## Key Components
 
 ### Bit Plane Compression
 - Analyzes data sparsity across bit planes
@@ -206,7 +206,7 @@ StreamPressor/
 - Support for chunked data processing
 - Data statistics and analysis tools
 
-## 📈 Performance
+## Performance
 
 The framework provides comprehensive compression analysis:
 
@@ -239,22 +239,22 @@ The project includes 38 comprehensive tests covering:
 - Update documentation for API changes
 - Ensure all tests pass before submitting
 
-## 📄 License
+## License
 
 This project is licensed under the Argonne National Laboratory Open Source License - see the [LICENSE.txt](LICENSE.txt) file for details.
 
-## 👥 Authors
+## Authors
 
 - **Kazutomo Yoshii** - *Initial work* - [kazutomo@mcs.anl.gov](mailto:kazutomo@mcs.anl.gov)
 - **Connor Bohannon** - *Documentation, testing, and X-ray compression features*
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Based on research from T. Ueno et al., "Bandwidth Compression of Floating-Point Numerical Data Streams for FPGA-based High-Performance Computing"
 - Developed at Argonne National Laboratory
 - Built with [Chisel](https://www.chisel-lang.org/) hardware construction language
 
-## 📞 Support
+## Support
 
 For questions and support:
 - Open an issue on GitHub
