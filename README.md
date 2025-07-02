@@ -35,7 +35,7 @@ git clone https://github.com/kazutomo/StreamPressor.git
 cd StreamPressor
 ```
 
-### 2. Automated Setup (Recommended for WSL)
+### 2. Automated Setup (For Chameleoncloud Setup)
 
 For WSL users, we provide an automated setup script that handles all dependencies and configuration:
 
