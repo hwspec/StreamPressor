@@ -9,7 +9,7 @@ import org.scalatest.matchers.should.Matchers
 class DataFeederSpec extends AnyFlatSpec with Matchers {
   
   "NumpyDataFeeder" should "feed X-ray data correctly" in {
-    val filename = "25-trimmed.npy"
+    val filename = "test_data/25-trimmed.npy"
     
     // Test feeding data as stream
     val dataStream = NumpyDataFeeder.feedNumpyData(filename)
@@ -33,7 +33,7 @@ class DataFeederSpec extends AnyFlatSpec with Matchers {
   }
   
   "NumpyDataFeeder" should "feed data in chunks" in {
-    val filename = "25-trimmed.npy"
+    val filename = "test_data/25-trimmed.npy"
     val chunkSize = 1024
     
     val chunkIterator = NumpyDataFeeder.feedNumpyDataInChunks(filename, chunkSize)
@@ -78,7 +78,7 @@ class DataFeederSpec extends AnyFlatSpec with Matchers {
   }
   
   "NumpyDataFeeder" should "handle zero patterns correctly" in {
-    val filename = "25-trimmed.npy"
+    val filename = "test_data/25-trimmed.npy"
     
     val dataStream = NumpyDataFeeder.feedNumpyData(filename)
     val firstHundred = dataStream.take(100).toArray
