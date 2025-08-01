@@ -142,15 +142,29 @@ Once setup is complete:
 
 ---
 
-## 📝 Notes
+---
 
-- Ensure your `SZxRoCCConfig.scala` properly sets `BuildRoCC` with your custom accelerator.
-- If changes aren’t picked up, try rebuilding with:
+## 📝 Notes & Tips
+
+- ✅ Make sure your `SZxRoCCConfig.scala` correctly sets the `BuildRoCC` parameter to instantiate your `SZxRoCCAccelerator`.
+- 📁 Simulation and test output files are typically located under `sim/generated-src` or `output/` after a successful run.
+- 🧰 Want to explore powerful Chipyard internals? Open the `variables.mk` file in the root of Chipyard:
   ```bash
-  make -j run-binary-debug
+  vim ~/chipyard/variables.mk
   ```
-- Test outputs can be found in `sim/generated-src` or under `output/`.
+  This file contains Makefile variables that are **shared across the entire Chipyard build system**. It's a great reference to:
+  - Understand how targets are constructed
+  - Discover useful environment variables
+  - Customize build paths and toolchain behavior
 
 ---
 
-Happy hacking! 🧠⚙️🛠️
+## 📚 Additional Resources
+
+- 🔗 **Official Chipyard Documentation**:  
+  https://chipyard.readthedocs.io/en/latest/index.html
+
+---
+
+Happy hacking — and may your pipelines be fast, your clocks tight, and your accelerators screaming! 🧠⚙️🚀
+
