@@ -40,14 +40,14 @@ lazy val rocc = (project in file("generators/rocc"))
   .settings(commonSettings)
 ```
 then further up in the same build.sbt you want to add you new name to the .dependsOn 
-the snippet will look like this 
+the snippet will look like this (added in bold) 
 ```
 ...
 lazy val chipyard = (project in file("generators/chipyard"))
   .dependsOn(testchipip, rocketchip, boom, rocketchip_blocks, rocketchip_inclusive_cache,
     dsptools, rocket_dsp_utils,
     gemmini, icenet, tracegen, cva6, nvdla, sodor, ibex, fft_generator,
-    constellation, mempress, barf, shuttle, caliptra_aes, rerocc, rocc,
+    constellation, mempress, barf, shuttle, caliptra_aes, rerocc, **rocc**,
     compressacc, saturn, ara, firrtl2_bridge, vexiiriscv)
 ...
 ```
