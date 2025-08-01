@@ -166,5 +166,5 @@ Once setup is complete:
 
 ---
 
-Happy hacking — and may your pipelines be fast, your clocks tight, and your accelerators screaming! 🧠⚙️🚀
+Happy Hacking!
 
