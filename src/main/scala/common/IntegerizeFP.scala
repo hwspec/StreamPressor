@@ -6,7 +6,7 @@
 package common
 
 import chisel3._
-import chisel3.stage.ChiselStage
+import circt.stage.ChiselStage
 import chisel3.util._
 //import _root_.circt.stage.ChiselStage
 
@@ -47,7 +47,7 @@ class MapFP2UIntIdentity(bw: Int = 32) extends Module {
 }
 
 object IntegerizeFPDriver extends App {
-  (new ChiselStage).emitVerilog(new MapFP2UInt())
+  ChiselStage.emitSystemVerilog(new MapFP2UInt())
   // ChiselStage.emitSystemVerilog(new MapFP2UInt()) // 5.0.0
 }
 

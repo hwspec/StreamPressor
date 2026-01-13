@@ -3,8 +3,9 @@
 
 package common
 
-import chiseltest._
-import chiseltest.formal.{BoundedCheck, Formal}
+import chisel3.simulator.ChiselSim
+// Note: Formal testing (BoundedCheck, Formal) is not available in ChiselSim
+// Formal tests are commented out for now
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
 
@@ -17,8 +18,10 @@ import scala.util.Random
   * sbt "testOnly -- -DFORMAL=1"
   * Note: Formal testing is disabled by default. You need to add a dummy value (e.g., =1)
   * as ConfigMap requires some value.
+  * 
+  * Note: Formal testing is not yet supported in ChiselSim
   */
-class LocalConfigSpec extends AnyFlatSpec with BeforeAndAfterAllConfigMap with ChiselScalatestTester {
+class LocalConfigSpec extends AnyFlatSpec with BeforeAndAfterAllConfigMap with ChiselSim {
   private var _formalEnabled = false
   override def beforeAll(configMap: ConfigMap) = {
     _formalEnabled = configMap.contains("FORMAL")
@@ -26,19 +29,20 @@ class LocalConfigSpec extends AnyFlatSpec with BeforeAndAfterAllConfigMap with C
   def formalEnabled = _formalEnabled
 }
 
-class IntegerizeFPFormalSpec extends LocalConfigSpec with Formal {
-  behavior.of("IntegerizeFPFormal")
+// Note: Formal testing is not yet supported in ChiselSim - this test is disabled
+// class IntegerizeFPFormalSpec extends LocalConfigSpec with Formal {
+//   behavior.of("IntegerizeFPFormal")
+//
+//   Seq(32, 64).foreach { bw =>
+//     s"Check the identity of $bw-bit IntegerizeFP" should "pass" in {
+//       assume(formalEnabled)
+//       verify(new MapFP2UIntIdentity(bw), Seq(BoundedCheck(1)))
+//     }
+//   }
+// }
 
-  Seq(32, 64).foreach { bw =>
-    s"Check the identity of $bw-bit IntegerizeFP" should "pass" in {
-      assume(formalEnabled)
-      verify(new MapFP2UIntIdentity(bw), Seq(BoundedCheck(1)))
-    }
-  }
-}
 
-
-class IntegerizeFPSpec extends AnyFlatSpec with ChiselScalatestTester {
+class IntegerizeFPSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("IntegerizeFP")
 
   val debug = false
@@ -52,7 +56,7 @@ class IntegerizeFPSpec extends AnyFlatSpec with ChiselScalatestTester {
   import IntegerizeFPSpecUtil._
 
   "MapFP2UInt" should "pass" in {
-    test(new MapFP2UInt()) { c =>
+    simulate(new MapFP2UInt()) { c =>
       for (d <- testdata) {
         val uint32value: BigInt = convFloat2Bin(d)
 

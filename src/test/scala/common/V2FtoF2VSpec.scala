@@ -4,7 +4,7 @@
 package common
 
 import chisel3._
-import chiseltest._
+import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
@@ -18,7 +18,7 @@ import Misc._
  * - add expect
  * - add different test patterns
  */
-class V2FtoF2VSpec extends AnyFlatSpec with ChiselScalatestTester {
+class V2FtoF2VSpec extends AnyFlatSpec with ChiselSim {
   behavior of "Loopback test"
 
   val encbusbw: Int = 36
@@ -27,37 +27,45 @@ class V2FtoF2VSpec extends AnyFlatSpec with ChiselScalatestTester {
   val debuglevel:Int = 0
 
   def checkInitConditionV2FConv(c: V2FtoF2VTest): Unit = {
-    c.io.in.initSource().setSourceClock(c.clock)
-    c.io.out.initSink().setSinkClock(c.clock)
-    c.io.in.ready.expect(true.B) // check the initial condition
-    c.io.out.valid.expect(false.B)
+    // ChiselSim doesn't have initSource/initSink, just check initial state
+    assert(c.io.in.ready.peek().litToBoolean, "in.ready should be true initially")
+    assert(!c.io.out.valid.peek().litToBoolean, "out.valid should be false initially")
   }
 
   "Loopback test" should "pass" in {
-    test(new V2FtoF2VTest(encbusbw, fixbusbw, packetbw, debuglevel)) {
+    simulate(new V2FtoF2VTest(encbusbw, fixbusbw, packetbw, debuglevel)) {
       c => {
         checkInitConditionV2FConv(c)
 
-        fork {
-          for(i <- 0 until 16) {
-            c.io.in.enqueue(0x2.S)
+        // ChiselSim doesn't support fork - rewrite as sequential
+        c.io.out.ready.poke(true.B)
+        var clk = 0
+        var cnt = 1
+        var inputIdx = 0
+        
+        // Process inputs and outputs sequentially
+        while (inputIdx < 16 || c.io.out.valid.peek().litToBoolean) {
+          // Enqueue next input if ready and available
+          if (inputIdx < 16 && c.io.in.ready.peek().litToBoolean) {
+            c.io.in.bits.poke(0x2.S)
+            c.io.in.valid.poke(true.B)
+            c.clock.step()
+            c.io.in.valid.poke(false.B)
+            inputIdx += 1
           }
-        }.fork {
-          var clk = 0
-          var cnt = 1
-          for (i<-0 until 16) {
-            while (!c.io.out.valid.peekBoolean()) {
-              clk += 1
-              c.clock.step()
-            }
-            c.io.out.ready.poke(true.B)
-            val outbits = c.io.out.bits.peekInt()
+          
+          // Dequeue output if valid
+          if (c.io.out.valid.peek().litToBoolean && cnt <= 16) {
+            val outbits = c.io.out.bits.peek().litValue.toInt
             println(f"clk${clk}/cnt${cnt} ${outbits}")
             cnt += 1
             c.clock.step()
             clk += 1
+          } else {
+            c.clock.step()
+            clk += 1
           }
-        }.join()
+        }
       }
     }
   }

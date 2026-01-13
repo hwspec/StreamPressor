@@ -3,27 +3,27 @@
 
 package lpe
 
-import chiseltest._
-import chiseltest.formal.{BoundedCheck, Formal}
+import chisel3.simulator.ChiselSim
+// Note: Formal testing (BoundedCheck, Formal) is not available in ChiselSim
+// Formal tests are commented out for now
 import common.LocalConfigSpec
 import org.scalatest.flatspec.AnyFlatSpec
 
 /** *
  * LPCompFormalSpec runs formal test for LPCompIdentity().
  *
- * Note: BoundedCheck should be more than 4, but a SMT solver (z3) is a bit slow, so temporarily setting to 1,
- * which means basically disabling testing. Try btormc later
+ * Note: Formal testing is not yet supported in ChiselSim - this test is disabled
  */
-class LPCompFormalSpec extends LocalConfigSpec with Formal {
-  behavior of "LPCompFormal"
+// class LPCompFormalSpec extends LocalConfigSpec with Formal {
+//   behavior of "LPCompFormal"
+//
+//   "Check the identity of LPComp" should "pass" in {
+//     assume(formalEnabled)
+//     verify(new LPCompIdentity(), Seq(BoundedCheck(1)))
+//   }
+// }
 
-  "Check the identity of LPComp" should "pass" in {
-    assume(formalEnabled)
-    verify(new LPCompIdentity(), Seq(BoundedCheck(1)))
-  }
-}
-
-class LPEncoderSpec extends AnyFlatSpec with ChiselScalatestTester {
+class LPEncoderSpec extends AnyFlatSpec with ChiselSim {
   behavior of "LPEncoder"
 
   val bw = 32
@@ -38,7 +38,7 @@ class LPEncoderSpec extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   def testLoop(inputs: List[BigInt], refs: List[BigInt], verbose: Boolean = false): Unit = {
-    test(new LPEncoder(bw, fpmode = false, coefficients = tp.lagrangepred)) { c =>
+    simulate(new LPEncoder(bw, fpmode = false, coefficients = tp.lagrangepred)) { c =>
       inputs.zip(refs) foreach { d =>
         c.io.in_data.poke(d._1)
         c.clock.step()
@@ -71,10 +71,10 @@ class LPEncoderSpec extends AnyFlatSpec with ChiselScalatestTester {
       c.clock.step()
     }
 
-    test(new LPCompIdentity(bw, fpmode = false, coefficients = tp.lagrangepred)) { c => loophelper(c) }
+    simulate(new LPCompIdentity(bw, fpmode = false, coefficients = tp.lagrangepred)) { c => loophelper(c) }
 
     // Note: fpmode = true means that IntegerizedFP is inserted before encoding or after decoding.
-    test(new LPCompIdentity(bw, fpmode = true, coefficients = tp.lagrangepred)) { c => loophelper(c) }
+    simulate(new LPCompIdentity(bw, fpmode = true, coefficients = tp.lagrangepred)) { c => loophelper(c) }
   }
 
   "LPComp: fixed int" should "pass" in testLoopIdentity(tp.inputs_fixed_int, tp.refs_fixed_int)

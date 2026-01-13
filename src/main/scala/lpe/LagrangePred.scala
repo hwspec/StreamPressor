@@ -7,9 +7,8 @@
 package lpe
 
 import chisel3._
-//import chisel3.stage.ChiselStage
 import chisel3.util._
-// import _root_.circt.stage.ChiselStage
+// import circt.stage.ChiselStage
 
 object LagrangePredUtil {
   def additionalBits(coefficients: Seq[Int]): Int = {

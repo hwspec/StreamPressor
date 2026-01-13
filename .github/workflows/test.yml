@@ -16,19 +16,19 @@ on:
 jobs:
   test:
     name: sbt testOnly on ubuntu
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala: [2.13.10]
-        jvm: [adopt@1.8, adopt@1.11]
+        scala: [2.13.18]
+        jvm: [temurin@11, temurin@17]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y z3 python3 python3-dev python3-pip
+          sudo apt-get install -y z3 python3 python3-dev python3-pip verilator
           
       - name: Install Python dependencies
         run: |
@@ -36,16 +36,31 @@ jobs:
           
       - name: Setup ScalaPy
         run: |
-          # Create symbolic link for Python library (similar to setup_scalapy.sh)
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/libpython3.10.so /usr/lib/x86_64-linux-gnu/libpython3.so
+          # Find and link the appropriate Python library version
+          PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+' | head -1)
+          PYTHON_LIB=$(find /usr/lib/x86_64-linux-gnu -name "libpython${PYTHON_VERSION}.so" 2>/dev/null | head -1)
+          if [ -n "$PYTHON_LIB" ]; then
+            sudo ln -sf "$PYTHON_LIB" /usr/lib/x86_64-linux-gnu/libpython3.so || true
+          fi
           
       - name: Setup Scala
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.jvm }}
           
+      - name: Cache SBT dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.ivy2/cache
+            ~/.sbt
+          key: sbt-${{ runner.os }}-${{ hashFiles('**/build.sbt') }}-${{ matrix.scala }}-${{ matrix.jvm }}
+          restore-keys: |
+            sbt-${{ runner.os }}-${{ matrix.scala }}-${{ matrix.jvm }}-
+            sbt-${{ runner.os }}-
+          
       - name: Test
-        run: sbt ++${{ matrix.scala }} "testOnly -- -l RequiresVcs -l RequiresVerilator -DFORMAL=1"
+        run: sbt ++${{ matrix.scala }} "testOnly -- -l RequiresVcs -l RequiresVerilator"
         
       - name: Test X-ray compression pipeline
         run: sbt ++${{ matrix.scala }} "testOnly -z common.XRayCompressionPipelineSpec"

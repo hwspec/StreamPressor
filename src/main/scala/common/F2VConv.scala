@@ -4,7 +4,7 @@
 package common
 
 import chisel3._
-import chisel3.stage.ChiselStage
+import circt.stage.ChiselStage
 import chisel3.util._
 
 /**
@@ -190,6 +190,6 @@ class F2VConv(inbw: Int = 128, outbw: Int = 36, packetbw: Int = 4, debuglevel: I
 
 object F2VConvDriver {
   def main(args: Array[String]): Unit = {
-    (new ChiselStage).emitVerilog(new F2VConv())
+    ChiselStage.emitSystemVerilog(new F2VConv())
   }
 }

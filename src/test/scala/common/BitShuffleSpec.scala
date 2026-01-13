@@ -5,11 +5,10 @@ package common
 
 import chisel3._
 import chisel3.util._
-import chiseltest._
-
+import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
 
-class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
+class BitShuffleSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("BitShuffle")
 
   val c_nelems: Int = 16
@@ -29,7 +28,7 @@ class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   "Zero test" should "pass" in {
-    test(new BitShuffle(c_nelems, c_elemsize)) {
+    simulate(new BitShuffle(c_nelems, c_elemsize)) {
       c => {
         val hpat = pat0.map(_.U)
         val ref = genref(pat0)
@@ -40,7 +39,7 @@ class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   "Random test" should "pass" in {
-    test(new BitShuffle(c_nelems, c_elemsize)) {
+    simulate(new BitShuffle(c_nelems, c_elemsize)) {
 
       c => {
         val n = c_nelems
@@ -86,7 +85,7 @@ class BitShuffleSpec extends AnyFlatSpec with ChiselScalatestTester {
           println()
           print("OUT:")
           for (j <- 0 until b) {
-            val tmp = c.io.out(j).peekInt()
+            val tmp = c.io.out(j).peek().litValue.toInt
             print(f"$tmp%04x ")
             c.io.out(j).expect(shuffled(j))
             c.clock.step()

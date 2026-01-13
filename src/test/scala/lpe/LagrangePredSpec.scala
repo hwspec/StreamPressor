@@ -5,21 +5,23 @@ package lpe
 
 import chisel3._
 //import chisel3.util.log2Ceil
-import chiseltest._
-import chiseltest.formal.{BoundedCheck, Formal}
+import chisel3.simulator.ChiselSim
+// Note: Formal testing (BoundedCheck, Formal) is not available in ChiselSim
+// Formal tests are commented out for now
 import org.scalatest.flatspec.AnyFlatSpec
 import common.LocalConfigSpec
 
 import scala.util.Random
 
-class LagrangePredFormalSpec extends LocalConfigSpec with Formal {
-  behavior.of("LagrangePredFormal")
-
-  "Check the identity of LagrangePred" should "pass" in {
-    assume(formalEnabled)
-    verify(new LagrangePredIdentity(), Seq(BoundedCheck(10))) // 10 cycles
-  }
-}
+// Note: Formal testing is not yet supported in ChiselSim - this test is disabled
+// class LagrangePredFormalSpec extends LocalConfigSpec with Formal {
+//   behavior.of("LagrangePredFormal")
+//
+//   "Check the identity of LagrangePred" should "pass" in {
+//     assume(formalEnabled)
+//     verify(new LagrangePredIdentity(), Seq(BoundedCheck(10))) // 10 cycles
+//   }
+// }
 
 class LagrangePredTestPatterns(val bw: Int = 32, val lagrangepred: List[Int] = List(4, -6, 4, -1)) {
   require(bw >= 10 && bw <= 64) // due to hard-coded values for inputs_fixed_int and nextLong for inputs_rnd_int
@@ -54,7 +56,7 @@ class LagrangePredTestPatterns(val bw: Int = 32, val lagrangepred: List[Int] = L
   val refs_max_int = genReferences(inputs_max_int)
 }
 
-class LagrangePredSpec extends AnyFlatSpec with ChiselScalatestTester {
+class LagrangePredSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("LagrangePredSpec")
 
   val bw = 32
@@ -68,7 +70,7 @@ class LagrangePredSpec extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   def testLoop(inputs: List[BigInt], refs: List[BigInt], verbose: Boolean = false): Unit = {
-    test(new LagrangePred(bw, coefficients = tp.lagrangepred)) { c =>
+    simulate(new LagrangePred(bw, coefficients = tp.lagrangepred)) { c =>
       inputs.zip(refs).foreach { d =>
         c.io.in.poke(d._1)
         c.clock.step()
@@ -91,7 +93,7 @@ class LagrangePredSpec extends AnyFlatSpec with ChiselScalatestTester {
   //
 
   def testLoopIdentity(inputs: List[BigInt], refs: List[BigInt], verbose: Boolean = false): Unit = {
-    test(new LagrangePredIdentity(bw, coefficients = tp.lagrangepred)) { c =>
+    simulate(new LagrangePredIdentity(bw, coefficients = tp.lagrangepred)) { c =>
       inputs.zip(refs).foreach { d =>
         c.in.poke(d._1)
         c.clock.step()

@@ -3,10 +3,10 @@
 
 package common
 
-import chiseltest._
+import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
 
-class ClzParamSpec extends AnyFlatSpec with ChiselScalatestTester {
+class ClzParamSpec extends AnyFlatSpec with ChiselSim {
 
   behavior.of("ClzParam")
 
@@ -31,7 +31,7 @@ class ClzParamSpec extends AnyFlatSpec with ChiselScalatestTester {
   }
 
   "ClzParam" should "pass" in {
-    test(new ClzParam(nb)) { c =>
+    simulate(new ClzParam(nb)) { c =>
       for (_ <- 0 until ntries) {
         val (in, sh) = genNumber()
         //val str = toBinStr(in)

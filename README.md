@@ -1,8 +1,8 @@
-# StreamPressor (last updated: 07/02/2025)
+# StreamPressor (last updated: 01/13/2026)
 
 [![License](https://img.shields.io/badge/License-Argonne%20National%20Lab-blue.svg)](LICENSE.txt)
-[![Scala](https://img.shields.io/badge/Scala-2.13.10-red.svg)](https://www.scala-lang.org/)
-[![Chisel](https://img.shields.io/badge/Chisel-3.5.6-orange.svg)](https://www.chisel-lang.org/)
+[![Scala](https://img.shields.io/badge/Scala-2.13.18-red.svg)](https://www.scala-lang.org/)
+[![Chisel](https://img.shields.io/badge/Chisel-7.6.0-orange.svg)](https://www.chisel-lang.org/)
 
 StreamPressor is a **stream compressor hardware generator** written in the Chisel hardware construction language for evaluating various designs of streaming hardware compressors. The framework combines predefined hardware compressor primitives with user-defined primitives to generate Verilog code for simulation and integration with other hardware designs.
 
@@ -19,11 +19,11 @@ StreamPressor is a **stream compressor hardware generator** written in the Chise
 
 ## Prerequisites
 
-- **Java SDK** (8 or 11 recommended)
+- **Java SDK** (11 or 17 recommended)
 - **sbt** (see [https://www.scala-sbt.org/download.html](https://www.scala-sbt.org/download.html) for installation)
-- **Verilator** and **z3** (for formal verification)
+- **Verilator** and **z3** (for formal verification - note: formal tests are currently disabled in ChiselSim)
 - **Python 3** with **numpy** (for .npy file support)
-- **Linux environment** is recommended 
+- **Linux environment** is recommended (WSL works well) 
 
 
 ## Quick Start
@@ -46,12 +46,13 @@ sh setup_streampressor.sh
 ```
 
 The setup script will:
-- Install Java 11, sbt, Verilator, Z3, and Python dependencies
-- Fix Python library linking issues common in WSL
-- Build the project and run initial tests
+- Install Java 11 and 17, sbt, Verilator, Z3, and Python dependencies
+- Automatically detect and set JAVA_HOME
+- Fix Python library linking issues (auto-detects Python version)
+- Build the project with Chisel 7.6.0
 - Configure the environment automatically
 
-**Note**: The script assumes you're in the project root directory. If you encounter any issues, you can still setup manually.
+**Note**: The script works from any directory and automatically detects the project root. It will also add JAVA_HOME to your `~/.bashrc` for persistence.
 
 ### 3. Run Tests
 
@@ -114,14 +115,15 @@ make clean
 
 ### Formal Testing
 
-To enable formal verification testing:
+**Note**: Formal verification tests are currently disabled as ChiselSim (the testing framework for Chisel 7.6.0) does not yet support formal verification. The formal test classes are commented out and will be re-enabled when support is added.
 
+Previously, formal tests could be run with:
 ```bash
-# Run all formal tests
-sbt "testOnly -- -DFORMAL=1"
+# Run all formal tests (currently disabled)
+# sbt "testOnly -- -DFORMAL=1"
 
-# Run specific formal test
-sbt "testOnly common.LagrangePredFormalSpec -- -DFORMAL=1"
+# Run specific formal test (currently disabled)
+# sbt "testOnly common.LagrangePredFormalSpec -- -DFORMAL=1"
 ```
 
 ## Project Structure
@@ -222,18 +224,19 @@ The framework provides comprehensive compression analysis:
 
 ## 🧪 Testing
 
-The project includes 38 comprehensive tests covering:
+The project includes comprehensive tests covering:
 
 - **Unit Tests**: Individual component functionality
 - **Integration Tests**: Complete pipeline testing
-- **Formal Verification**: Bounded model checking
 - **Performance Tests**: Compression ratio validation
+
+**Testing Framework**: Tests use ChiselSim (Chisel 7.6.0's testing framework). Note that formal verification tests are currently disabled as ChiselSim does not yet support formal verification.
 
 ### Test Categories
 
 - `common.*Spec` - Core utility tests
 - `lpe.*Spec` - Lagrange prediction tests
-- `*FormalSpec` - Formal verification tests
+- `*FormalSpec` - Formal verification tests (currently commented out)
 - `XRayCompressionPipelineSpec` - End-to-end pipeline tests
 
 
@@ -257,7 +260,8 @@ This project is licensed under the Argonne National Laboratory Open Source Licen
 
 - Based on research from T. Ueno et al., "Bandwidth Compression of Floating-Point Numerical Data Streams for FPGA-based High-Performance Computing"
 - Developed at Argonne National Laboratory
-- Built with [Chisel](https://www.chisel-lang.org/) hardware construction language
+- Built with [Chisel](https://www.chisel-lang.org/) hardware construction language (version 7.6.0)
+- Uses ChiselSim for testing (migrated from chiseltest)
 
 ## Support
 

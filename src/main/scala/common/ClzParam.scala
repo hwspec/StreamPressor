@@ -4,7 +4,7 @@
 package common
 
 import chisel3._
-import chisel3.stage.ChiselStage
+import circt.stage.ChiselStage
 import chisel3.util._
 //import _root_.circt.stage.ChiselStage // for 5.0.0
 
@@ -50,7 +50,7 @@ class ClzParam(val nb: Int = 16) extends Module {
   // When nb is 2, do a simple lookup. The input "00" has two leading
   // zero, the input "01" has one leading zero, and the rest has no
   // leading zero.
-  if (nb == 2) io.out := MuxLookup(io.in, 0.U, Array(0.U -> 2.U, 1.U -> 1.U).toIndexedSeq)
+  if (nb == 2) io.out := MuxLookup(io.in, 0.U)(Array(0.U -> 2.U, 1.U -> 1.U).toIndexedSeq)
   else {
     // divide 'in' into two blocks: c0 (lower half) and c1 (upper half).
     val half = nb >> 1
@@ -83,7 +83,7 @@ class ClzParam(val nb: Int = 16) extends Module {
 
 object ClzParam {
   def main(args: Array[String]): Unit = {
-    (new ChiselStage).emitVerilog(new ClzParam(32))
+    ChiselStage.emitSystemVerilog(new ClzParam(32))
     /*
   ChiselStage.emitSystemVerilog(new ClzParam(32)
     , firtoolOpts = Array(

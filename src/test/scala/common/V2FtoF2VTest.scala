@@ -4,7 +4,7 @@
 package common
 
 import chisel3._
-import chisel3.stage.ChiselStage
+import circt.stage.ChiselStage
 import chisel3.util._
 
 /**
@@ -35,6 +35,6 @@ class V2FtoF2VTest(p_encbusbw: Int = 36, p_fixbusbw: Int = 128, p_packetbw: Int 
 
 object V2FtoF2VDriver {
   def main(args: Array[String]): Unit = {
-    (new ChiselStage).emitVerilog(new V2FtoF2VTest())
+    ChiselStage.emitSystemVerilog(new V2FtoF2VTest())
   }
 }

@@ -4,7 +4,7 @@
 package common
 
 import chisel3._
-import chisel3.stage.ChiselStage
+import circt.stage.ChiselStage
 import chisel3.util._
 
 //class InputDataLen(bw: Int, nblocks: Int) extends Bundle {
@@ -100,6 +100,6 @@ object ConvV2FDriver {
     val totalbits = 128
     val bw = 8
 
-    (new ChiselStage).emitVerilog(new ConvV2F(bw = bw, nblocks = totalbits / bw))
+    ChiselStage.emitSystemVerilog(new ConvV2F(bw = bw, nblocks = totalbits / bw))
   }
 }
