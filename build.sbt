@@ -10,7 +10,7 @@ lazy val root = (project in file("."))
     name := "StreamPressor",
     resolvers ++= Seq(
       Resolver.mavenLocal,
-      Resolver.sonatypeCentralSnapshots
+      Resolver.sonatypeRepo("snapshots")
     ),
     libraryDependencies ++= Seq(
       "org.apache.commons" % "commons-math3" % "3.6.1",
