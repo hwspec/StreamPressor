@@ -5,7 +5,9 @@ package common
 
 import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.Tag
 
+@Tag("RequiresVerilator")
 class ClzParamSpec extends AnyFlatSpec with ChiselSim {
 
   behavior.of("ClzParam")
