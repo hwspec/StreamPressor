@@ -8,7 +8,6 @@ import chisel3.simulator.ChiselSim
 // Formal tests are commented out for now
 import common.LocalConfigSpec
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.Tag
 
 /** *
  * LPCompFormalSpec runs formal test for LPCompIdentity().
@@ -24,7 +23,6 @@ import org.scalatest.Tag
 //   }
 // }
 
-@Tag("RequiresVerilator")
 class LPEncoderSpec extends AnyFlatSpec with ChiselSim {
   behavior of "LPEncoder"
 

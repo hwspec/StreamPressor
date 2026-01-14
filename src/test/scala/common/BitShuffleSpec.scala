@@ -7,9 +7,7 @@ import chisel3._
 import chisel3.util._
 import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.Tag
 
-@Tag("RequiresVerilator")
 class BitShuffleSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("BitShuffle")
 

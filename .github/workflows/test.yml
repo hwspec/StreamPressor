@@ -58,26 +58,13 @@ jobs:
           path: |
             ~/.ivy2/cache
             ~/.sbt
-            ~/.cache/coursier
           key: sbt-${{ runner.os }}-${{ hashFiles('**/build.sbt') }}-${{ matrix.scala }}-${{ matrix.jvm }}
           restore-keys: |
             sbt-${{ runner.os }}-${{ matrix.scala }}-${{ matrix.jvm }}-
             sbt-${{ runner.os }}-
           
-      - name: Cache firtool
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/chisel
-          key: firtool-${{ runner.os }}
-          restore-keys: |
-            firtool-${{ runner.os }}-
-          
       - name: Test
         run: sbt ++${{ matrix.scala }} "testOnly -- -l RequiresVcs -l RequiresVerilator"
-        env:
-          # Ensure firtool can be downloaded if not cached
-          CHISEL_FIRTOOL_PATH: ""
         
       - name: Test X-ray compression pipeline
         run: sbt ++${{ matrix.scala }} "testOnly -z common.XRayCompressionPipelineSpec"

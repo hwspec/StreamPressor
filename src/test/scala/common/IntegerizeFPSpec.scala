@@ -7,7 +7,7 @@ import chisel3.simulator.ChiselSim
 // Note: Formal testing (BoundedCheck, Formal) is not available in ChiselSim
 // Formal tests are commented out for now
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap, Tag}
+import org.scalatest.{BeforeAndAfterAllConfigMap, ConfigMap}
 
 // import java.lang.{Float => javaFloat}
 import scala.language.postfixOps
@@ -21,7 +21,6 @@ import scala.util.Random
   * 
   * Note: Formal testing is not yet supported in ChiselSim
   */
-@Tag("RequiresVerilator")
 class LocalConfigSpec extends AnyFlatSpec with BeforeAndAfterAllConfigMap with ChiselSim {
   private var _formalEnabled = false
   override def beforeAll(configMap: ConfigMap) = {
@@ -43,7 +42,6 @@ class LocalConfigSpec extends AnyFlatSpec with BeforeAndAfterAllConfigMap with C
 // }
 
 
-@Tag("RequiresVerilator")
 class IntegerizeFPSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("IntegerizeFP")
 

@@ -9,7 +9,6 @@ import chisel3.simulator.ChiselSim
 // Note: Formal testing (BoundedCheck, Formal) is not available in ChiselSim
 // Formal tests are commented out for now
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.Tag
 import common.LocalConfigSpec
 
 import scala.util.Random
@@ -57,7 +56,6 @@ class LagrangePredTestPatterns(val bw: Int = 32, val lagrangepred: List[Int] = L
   val refs_max_int = genReferences(inputs_max_int)
 }
 
-@Tag("RequiresVerilator")
 class LagrangePredSpec extends AnyFlatSpec with ChiselSim {
   behavior.of("LagrangePredSpec")
 

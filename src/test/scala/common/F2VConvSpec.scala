@@ -6,11 +6,10 @@ package common
 import chisel3._
 import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.{Ignore, Tag}
+import org.scalatest.Ignore
 import Misc._
 import ConvTestPats._
 
-@Tag("RequiresVerilator")
 class F2VConvSpec extends AnyFlatSpec with ChiselSim {
   behavior of "Fix-Variable Converters"
 

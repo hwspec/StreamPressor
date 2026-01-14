@@ -6,11 +6,9 @@ package common
 import chisel3._
 import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.Tag
 import Misc._
 import ConvTestPats._
 
-@Tag("RequiresVerilator")
 class V2FConvSpec extends AnyFlatSpec with ChiselSim {
   behavior of "Variable-Fix Converters"
 
@@ -69,7 +67,6 @@ class V2FConvSpec extends AnyFlatSpec with ChiselSim {
 // ==============================================================
 // The code below will be removed
 // ==============================================================
-@Tag("RequiresVerilator")
 class UnusedSpec extends AnyFlatSpec with ChiselSim {
 
   // XXX: replace gendummycontents with genpayloadspat. update all related codes

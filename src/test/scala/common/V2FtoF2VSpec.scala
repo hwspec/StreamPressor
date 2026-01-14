@@ -6,7 +6,6 @@ package common
 import chisel3._
 import chisel3.simulator.ChiselSim
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.Tag
 import scala.util.Random
 import scala.collection.mutable.ListBuffer
 
@@ -19,7 +18,6 @@ import Misc._
  * - add expect
  * - add different test patterns
  */
-@Tag("RequiresVerilator")
 class V2FtoF2VSpec extends AnyFlatSpec with ChiselSim {
   behavior of "Loopback test"
 
