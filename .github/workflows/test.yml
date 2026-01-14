@@ -1,73 +1,58 @@
-name: chisel test
+name: Continuous Integration
 
 on:
-  pull_request:
-    paths:
-      - '**.scala'
-      - '**.sbt'
-      - Makefile
   push:
-    paths:
-      - '**.scala'
-      - '**.sbt'
-      - Makefile
-      - .github/workflows/test.yml
+    tags: ['*']
+    branches: ['main']
+  pull_request:
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: sbt testOnly on ubuntu
+  ci:
+    name: ci
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala: [2.13.18]
         jvm: ['11', '17']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        
-      - name: Install system dependencies
+
+      - name: Cache Scala
+        uses: coursier/cache-action@v6
+
+      - name: Setup Scala
+        uses: coursier/setup-action@v1
+        with:
+          jvm: adopt:${{ matrix.jvm }}
+          apps: sbt
+
+      - name: Setup Dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y z3 python3 python3-dev python3-pip verilator
-          
+          verilator --version
+
       - name: Install Python dependencies
         run: |
           pip3 install numpy
-          
+
       - name: Setup ScalaPy
         run: |
           # Find and link the appropriate Python library version
           PYTHON_VERSION=$(python3 --version | grep -oP '\d+\.\d+' | head -1)
           PYTHON_LIB=$(find /usr/lib/x86_64-linux-gnu -name "libpython${PYTHON_VERSION}.so" 2>/dev/null | head -1)
+          if [ -z "$PYTHON_LIB" ]; then
+            PYTHON_LIB=$(find /usr/lib -name "libpython${PYTHON_VERSION}.so" 2>/dev/null | head -1)
+          fi
           if [ -n "$PYTHON_LIB" ]; then
             sudo ln -sf "$PYTHON_LIB" /usr/lib/x86_64-linux-gnu/libpython3.so || true
+            PYTHON_LIB_1="${PYTHON_LIB}.1"
+            if [ -f "$PYTHON_LIB_1" ]; then
+              sudo ln -sf "$PYTHON_LIB_1" /usr/lib/x86_64-linux-gnu/libpython3.so.1 || true
+            fi
           fi
-          
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: ${{ matrix.jvm }}
-          
-      - name: Setup Scala
-        uses: olafurpg/setup-scala@v13
-          
-      - name: Cache SBT dependencies
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.ivy2/cache
-            ~/.sbt
-          key: sbt-${{ runner.os }}-${{ hashFiles('**/build.sbt') }}-${{ matrix.scala }}-${{ matrix.jvm }}
-          restore-keys: |
-            sbt-${{ runner.os }}-${{ matrix.scala }}-${{ matrix.jvm }}-
-            sbt-${{ runner.os }}-
-          
-      - name: Test
-        run: sbt ++${{ matrix.scala }} "testOnly -- -l RequiresVcs -l RequiresVerilator"
-        
-      - name: Test X-ray compression pipeline
-        run: sbt ++${{ matrix.scala }} "testOnly -z common.XRayCompressionPipelineSpec"
-        
-      - name: Test numpy reader
-        run: sbt ++${{ matrix.scala }} "testOnly -z common.NumpyReaderScalaPySpec"
+          echo "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+
+      - name: SBT Test
+        run: sbt test

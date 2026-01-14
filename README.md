@@ -12,7 +12,7 @@ StreamPressor is a **stream compressor hardware generator** written in the Chise
 - **Bit Plane Compression**: Advanced bit plane analysis and compression algorithms
 - **Lagrange Prediction**: Hardware implementation of Lagrange-based prediction for data compression
 - **Variable-to-Fixed Conversion**: V2F and F2V converters for efficient data packing
-- **Formal Verification**: Comprehensive formal testing with bounded model checking
+- **Formal Verification**: Comprehensive formal testing framework (currently disabled in ChiselSim)
 - **Numpy Integration**: Direct support for reading and processing .npy files via ScalaPy
 - **Bit Shuffling**: Optimized bit shuffling algorithms for improved compression ratios
 - **Multi-format Support**: Support for both 32-bit and 64-bit floating-point data
@@ -35,14 +35,21 @@ git clone https://github.com/kazutomo/StreamPressor.git
 cd StreamPressor
 ```
 
-### 2. Automated Setup (For Chameleoncloud Setup)
+### 2. Setup Options
 
-For cc users, we provide an automated setup script that handles all dependencies and configuration:
+You have two options for setting up the project:
+
+#### Option A: Automated Setup Script (Recommended)
+
+We provide an automated setup script that handles all dependencies and configuration for Linux/WSL environments:
 
 ```bash
-# Make/Run the setup script executable
+# Option 1: Run directly with sh
 sh setup_streampressor.sh
 
+# Option 2: Make executable and run
+chmod +x setup_streampressor.sh
+./setup_streampressor.sh
 ```
 
 The setup script will:
@@ -52,7 +59,84 @@ The setup script will:
 - Build the project with Chisel 7.6.0
 - Configure the environment automatically
 
-**Note**: The script works from any directory and automatically detects the project root. It will also add JAVA_HOME to your `~/.bashrc` for persistence.
+**Note**: The script requires `sudo` privileges for package installation. It works from any directory and automatically detects the project root. It will also add JAVA_HOME to your `~/.bashrc` for persistence.
+
+#### Option B: Manual Installation (No sudo required)
+
+If you prefer to install dependencies manually or don't have sudo access, follow these steps:
+
+1. **Install Java 11 or 17**
+   ```bash
+   # Ubuntu/Debian (requires sudo)
+   sudo apt update
+   sudo apt install -y openjdk-11-jdk openjdk-17-jdk
+   
+   # Or download from: https://adoptium.net/
+   # Set JAVA_HOME manually:
+   export JAVA_HOME=/path/to/java
+   export PATH=$JAVA_HOME/bin:$PATH
+   ```
+
+2. **Install sbt**
+   ```bash
+   # Ubuntu/Debian (requires sudo)
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee /etc/apt/sources.list.d/sbt.list
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+   curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo apt-key add -
+   sudo apt update
+   sudo apt install -y sbt
+   
+   # Or download from: https://www.scala-sbt.org/download.html
+   ```
+
+3. **Install Verilator and Z3**
+   ```bash
+   # Ubuntu/Debian (requires sudo)
+   sudo apt install -y verilator z3
+   
+   # Or build from source if you don't have sudo
+   ```
+
+4. **Install Python 3 and numpy**
+   ```bash
+   # Ubuntu/Debian (requires sudo)
+   sudo apt install -y python3 python3-dev python3-pip python3-numpy libpython3-dev
+   
+   # Or use pip without sudo (user install)
+   pip3 install --user numpy
+   ```
+
+5. **Fix Python library linking** (if needed)
+   ```bash
+   # Detect Python version
+   PYTHON_VERSION=$(python3 --version 2>&1 | grep -oP '\d+\.\d+' | head -1)
+   echo "Detected Python version: $PYTHON_VERSION"
+   
+   # Find Python library
+   PYTHON_LIB=$(find /usr/lib/x86_64-linux-gnu -name "libpython${PYTHON_VERSION}.so" 2>/dev/null | head -1)
+   if [ -z "$PYTHON_LIB" ]; then
+       PYTHON_LIB=$(find /usr/lib -name "libpython${PYTHON_VERSION}.so" 2>/dev/null | head -1)
+   fi
+   
+   # Create symlink (may require sudo)
+   if [ -n "$PYTHON_LIB" ]; then
+       sudo ln -sf "$PYTHON_LIB" /usr/lib/x86_64-linux-gnu/libpython3.so || true
+       PYTHON_LIB_1="${PYTHON_LIB}.1"
+       if [ -f "$PYTHON_LIB_1" ]; then
+           sudo ln -sf "$PYTHON_LIB_1" /usr/lib/x86_64-linux-gnu/libpython3.so.1 || true
+       fi
+   fi
+   
+   # Set library path
+   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/usr/lib:$LD_LIBRARY_PATH
+   ```
+
+6. **Build the project**
+   ```bash
+   cd StreamPressor
+   sbt clean
+   sbt compile
+   ```
 
 ### 3. Run Tests
 
@@ -60,12 +144,11 @@ The setup script will:
 # Run all tests
 sbt test
 
-# Run with formal verification enabled
-sbt "testOnly -- -DFORMAL=1"
-
 # Run specific test suite
 sbt "testOnly common.XRayCompressionPipelineSpec"
 ```
+
+**Note**: Formal verification tests are currently disabled (see Formal Testing section below).
 
 ### 4. Generate Verilog
 
@@ -103,15 +186,14 @@ The project includes a `Makefile` with convenient shortcuts:
 # Run all tests
 make test
 
-# Run formal verification tests
-make formal
-
 # Run compression ratio estimator
 make estimator
 
 # Clean generated files
 make clean
 ```
+
+**Note**: The `make formal` target is currently disabled as formal verification is not yet supported in ChiselSim.
 
 ### Formal Testing
 
@@ -140,7 +222,6 @@ StreamPressor/
 │   │   │   ├── ConversionUtils.scala       # V2F/F2V conversion utilities
 │   │   │   ├── DataFeeder.scala            # Data feeding and streaming
 │   │   │   ├── F2VConv.scala               # Fixed-to-Variable converter
-│   │   │   ├── F2VConv.scala               # Float-to-Vector converter
 │   │   │   ├── Headers.scala               # Header definitions
 │   │   │   ├── IntegerizeFP.scala          # Floating-point to integer conversion
 │   │   │   ├── NumpyReaderScalaPy.scala    # Numpy file reading via ScalaPy
@@ -187,7 +268,7 @@ StreamPressor/
 ├── build.sbt                         # SBT build configuration
 ├── LICENSE.txt                       # Argonne National Lab license
 ├── Makefile                          # Build shortcuts and targets
-├── setup_streampressor.sh            # Automated setup script for WSL
+├── setup_streampressor.sh            # Automated setup script for Linux/WSL
 └── README.md                         # This documentation file
 ```
 
