@@ -137,7 +137,7 @@ Once setup is complete:
 
 - Run your test:
   ```bash
-  make CONFIG=SZxRocketConfig debug run-binary-debug BINARY=~/chipyard/tests/build/szx/szx_compress_hw.riscv LOADMEM=1
+  make CONFIG=SZxRocketConfig debug run-binary-debug BINARY= </path/to/szx_compress_hw.riscv> LOADMEM=1
   ```
 
 ---
