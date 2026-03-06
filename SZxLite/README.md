@@ -60,7 +60,7 @@ This guide explains how to integrate the custom `SZxLite` RoCC accelerator into 
    vim build.sbt
    ```
 
-7. Locate lines around 255–265. Between the definitions of `lazy val rerocc` and `rocc_acc_utils`, insert:
+7. Locate lines around 390-395. Between the definitions of `lazy val rerocc` and `rocc_acc_utils`, insert:
    ```scala
    lazy val rocc = (project in file("generators/rocc"))
      .dependsOn(rocketchip)
